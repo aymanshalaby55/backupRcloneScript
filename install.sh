@@ -82,6 +82,22 @@ check_rclone_auth
 
 chmod +x script.sh
 
-cp script.sh /usr/local/bin/backup 
+mkdir -p "$HOME/.local/bin"
+mkdir -p "$HOME/.local/share/backup"
 
-echo 
+cp script.sh "$HOME/.local/bin/backup"
+cp help.txt "$HOME/.local/share/backup/help.txt"
+
+# Create backup directory with proper permissions
+sudo mkdir -p /var/Backup
+sudo chown $USER:$USER /var/Backup
+
+# Add to PATH if not already there
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
+    echo "Added $HOME/.local/bin to PATH in .bashrc"
+    echo "Please run: source ~/.bashrc"
+fi
+
+echo "DONE"
+echo "Help file installed at: $HOME/.local/share/backup/help.txt"

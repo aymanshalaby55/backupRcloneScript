@@ -6,8 +6,48 @@ BACKUP_DIR="/var/Backup"
 
 
 #Functions
+
+# availabe options for the script
+check_options() {
+    case "$1" in
+        --login|-l)
+            echo "Setting up rclone for Google Drive..."
+            rclone config create gdrive drive
+            
+            # Verify it was created
+            if rclone listremotes | grep -q "^gdrive:$"; then
+                echo "Remote configured successfully"
+            else
+                echo "Failed to configure remote"
+                exit 1
+            fi
+            exit 0
+            ;;
+        --logs|-L)
+            if [ -f "$LOG_FILE" ]; then
+                cat "$LOG_FILE"
+            else
+                echo "No log file found at $LOG_FILE"
+            fi
+            exit 0
+            ;;
+        --help|-h)
+            if [ -f "$HOME/.local/share/backup/help.txt" ]; then
+                cat "$HOME/.local/share/backup/help.txt"
+            else
+                echo "Help file not found"
+            fi
+            exit 0
+            ;;
+        *)
+            # No special option, continue with normal backup
+            ;;
+    esac
+}
+
+#archived and compressed using tar 
 compress_files(){
-    mkdir -p "$BACKUP_DIR" #create if not exist (fixed typo: mdkir -> mkdir)
+    mkdir -p "$BACKUP_DIR" 
     local basename=$(basename "$1")
     local timestamp=$(date +%Y%m%d_%H%M%S)
     local output="$BACKUP_DIR/${basename}_${timestamp}"
@@ -16,7 +56,7 @@ compress_files(){
     # Check if source exists
     if [ ! -e "$source" ]; then
         echo "Error: Source '$source' does not exist"
-        return 1
+        exit 1
     fi
 
     tar -czf "${output}.tar.gz" -C "$(dirname "$source")" "$(basename "$source")"
@@ -26,7 +66,7 @@ compress_files(){
         echo "$output.tar.gz"  # Return the compressed file path
     else
         echo "Error: Compression failed"
-        return 1
+        exit 1
     fi
 }
 
@@ -57,13 +97,24 @@ perform_backup() {
     fi
 }
 
+# make 
+
+
 # Run the backup
-check_rclone_auth
+check_options $1
 
+# Compress files and capture the output
+compressed_file=$(compress_files "${@: -1}")
 
-compress_files $1
-perform_backup $BACKUP_DIR  # Add your actual path here
+# Check if compression was successful
+if [ $? -ne 0 ]; then
+    echo "Backup aborted due to compression failure"
+    exit 1
+fi
+
+# Only proceed with backup if compression succeeded
+perform_backup "$BACKUP_DIR"
 
 
 # clean up backup folder
-rm -r $BACKUP_DIR
+rm -r "$BACKUP_DIR"

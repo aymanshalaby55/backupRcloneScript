@@ -1,0 +1,49 @@
+Backup Script - Google Drive Backup Utility
+
+USAGE:
+    backup [OPTIONS] <file_or_directory>
+
+DESCRIPTION:
+    Compresses and backs up files or directories to Google Drive using rclone.
+    The script creates a timestamped tar.gz archive and uploads it to gdrive:Backups.
+
+OPTIONS:
+    --login, -l
+        Configure rclone for Google Drive authentication.
+        Sets up the 'gdrive' remote for the first time.
+        
+    --logs, -L
+        Display the backup log file.
+        Shows the contents of /var/backup.log if it exists.
+        
+    --help, -h
+        Display this help message.
+
+ARGUMENTS:
+    <file_or_directory>
+        Path to the file or directory you want to backup.
+        The script will compress it before uploading.
+
+EXAMPLES:
+    # Backup a directory
+    backup /home/user/documents
+    
+    # Backup a single file
+    backup /home/user/important.txt
+    
+    # Configure Google Drive authentication
+    backup --login
+    
+    # View backup logs
+    backup --logs
+
+NOTES:
+    - Backups are stored in /var/Backup temporarily during compression
+    - Compressed archives are uploaded to gdrive:Backups on Google Drive
+    - Log file is located at /var/backup.log
+    - The temporary backup directory is cleaned up after upload
+
+REQUIREMENTS:
+    - rclone must be installed and configured
+    - Google Drive remote must be set up (use --login)
+    - Write permissions for /var/Backup and /var/backup.log
