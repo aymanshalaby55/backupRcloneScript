@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CONFIG_FILE="$HOME/.config/rclone/rclone.conf"
-LOG_FILE="./backup.log"
+LOG_FILE="/var/backup.log"
 BACKUP_DIR="/var/Backup"
 
 
