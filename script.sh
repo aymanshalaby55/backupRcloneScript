@@ -39,6 +39,17 @@ check_options() {
             fi
             exit 0
             ;;
+        -*|--*)
+            # Unknown option starting with - or --
+            echo "Error: Unknown option '$1'"
+            echo ""
+            if [ -f "$HOME/.local/share/backup/help.txt" ]; then
+                cat "$HOME/.local/share/backup/help.txt"
+            else
+                echo "Help file not found"
+            fi
+            exit 1
+            ;;
         *)
             # No special option, continue with normal backup
             ;;
